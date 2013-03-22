@@ -25,7 +25,7 @@ CREATE TABLE `stops` (
 	stop_lon DECIMAL(12,8) NOT NULL,
 	zone_id VARCHAR(255),
     stop_url VARCHAR(255),
-    location_type ENUM ('0','1',''),
+    location_type TINYINT,
     parent_station VARCHAR(255),
 	KEY `zone_id` (zone_id),
 	KEY `stop_lat` (stop_lat),
@@ -40,7 +40,7 @@ CREATE TABLE `routes` (
 	route_short_name VARCHAR(255),
 	route_long_name VARCHAR(255),
     route_desc VARCHAR(255),
-	route_type ENUM ('0','1','2','3','4','5','6','7') NOT NULL,
+	route_type TINYINT NOT NULL,
     route_url VARCHAR(255),
     route_color VARCHAR(255),
     route_text_color VARCHAR(255)
@@ -54,7 +54,7 @@ CREATE TABLE `trips` (
 	trip_id VARCHAR(255) NOT NULL PRIMARY KEY,
 	trip_headsign VARCHAR(255),
     trip_short_name VARCHAR(255),
-	direction_id ENUM ('0','1',''),
+	direction_id TINYINT,
 	block_id VARCHAR(255),
     shape_id VARCHAR(255),
 	pattern_id VARCHAR(255),
@@ -74,8 +74,8 @@ CREATE TABLE `stop_times` (
 	stop_id VARCHAR(255) NOT NULL,
 	stop_sequence SMALLINT UNSIGNED NOT NULL,
     stop_headsign VARCHAR(255),
-	pickup_type ENUM ('0','1','2','3',''),
-	drop_off_type ENUM ('0','1','2','3',''),
+	pickup_type TINYINT,
+	drop_off_type TINYINT,
     shape_dist_traveled DECIMAL(10,4) DEFAULT 0,
 	KEY `trip_id` (trip_id),
 	KEY `stop_id` (stop_id),
@@ -88,13 +88,13 @@ DROP TABLE IF EXISTS calendar;
 
 CREATE TABLE `calendar` (
     service_id VARCHAR(255) NOT NULL PRIMARY KEY,
-	monday ENUM ('0','1') NOT NULL,
-	tuesday ENUM ('0','1') NOT NULL,
-	wednesday ENUM ('0','1') NOT NULL,
-	thursday ENUM ('0','1') NOT NULL,
-	friday ENUM ('0','1') NOT NULL,
-	saturday ENUM ('0','1') NOT NULL,
-	sunday ENUM ('0','1') NOT NULL,
+	monday TINYINT NOT NULL,
+	tuesday TINYINT NOT NULL,
+	wednesday TINYINT NOT NULL,
+	thursday TINYINT NOT NULL,
+	friday TINYINT NOT NULL,
+	saturday TINYINT NOT NULL,
+	sunday TINYINT NOT NULL,
 	start_date DATE NOT NULL,	
 	end_date DATE NOT NULL
 );
@@ -106,7 +106,7 @@ DROP TABLE IF EXISTS calendar_dates;
 CREATE TABLE `calendar_dates` (
     service_id VARCHAR(255) NOT NULL,
     `date` DATE NOT NULL,
-    exception_type ENUM ('1','2') NOT NULL,
+    exception_type TINYINT NOT NULL,
     KEY `service_id` (service_id),
     KEY `exception_type` (exception_type)    
 );
@@ -117,8 +117,8 @@ CREATE TABLE fare_attributes (
     fare_id VARCHAR(255) NOT NULL,
     price VARCHAR(255) NOT NULL,
     currency_type VARCHAR(255) NOT NULL,
-    payment_method ENUM ('0','1') NOT NULL,
-    transfers ENUM ('0','1','2',''),
+    payment_method TINYINT NOT NULL,
+    transfers TINYINT,
     transfer_duration MEDIUMINT UNSIGNED
 );
 
@@ -156,7 +156,7 @@ DROP TABLE IF EXISTS transfers;
 CREATE TABLE transfers (
     from_stop_id VARCHAR(255) NOT NULL,
     to_stop_id VARCHAR(255) NOT NULL,
-    transfer_type ENUM ('0','1','2','3') NOT NULL,
+    transfer_type TINYINT NOT NULL,
     min_transfer_time MEDIUMINT NOT NULL
 );
 
