@@ -1,41 +1,40 @@
 #!/usr/bin/perl -w
 use strict;
-use Text::CSV_XS;
+use Text::CSV;
 use Tie::Handle::CSV;
+use Getopt::Long;
 use DBI;
 
-my $data = {
-    path_to_data => "input",
-    database => "sfmta_gtfs",
-    username => "mperkins",
-    password => "secret",
-};
+my @tablenames   = qw/agency calendar calendar_dates routes stops trips stop_times/;
 
-my @tablenames = qw/agency calendar calendar_dates routes stops trips stop_times/;
+my $path_to_data = "input";
+my $database 	 = "agency_gtfs";
+my $fh;
 
-open($data->{fh}, '>', qq[$data->{path_to_data}/$data->{database}/load-data.sql]) or die "Could not open file for writing SQL commands: $!";
-my $fh = $data->{fh};
+GetOptions(
+    "path|p=s" => \$path_to_data,
+    "database|d=s" => \$database
+);
 
-print $fh "USE " . $data->{database} . "\;\n\n";
+
+open($fh, '>', qq[$path_to_data/$database/load-data.sql]) or die "Could not open file for writing SQL commands: $!";
+
+print $fh "USE " . $database . "\;\n\n";
 
 foreach my $table (@tablenames) {
     print "Loading $table\n";
-    loadtable($table, $data);
+    loadtable($table);
     print "$table loaded\n";
 }
 
 sub loadtable {
     my $table = shift;
-    my $data = shift;
-    my $path_to_data = $data->{path_to_data};
-    my $database = $data->{database};
-    my $username = $data->{username};
-    my $password = $data->{password};
-    my $outfh = $data->{fh};
+    my $outfh = $fh;
 
-    my $csvparser = Text::CSV_XS->new( { binary => 1, blank_is_undef => 1, empty_is_undef => 1, allow_whitespace => 1} );
-    my $csv_fh = Tie::Handle::CSV->new("$path_to_data/$database/$table.txt", header => 1, csv_parser => $csvparser );
-    my @fieldslist = @{$csv_fh->header};
+    my $csvparser = Text::CSV->new( { binary => 1, blank_is_undef => 1, empty_is_undef => 1, allow_whitespace => 1} );
+    open my $csv_fh, '<', "$path_to_data/$database/$table.txt" or die "$!";
+
+    my @fieldslist = @{$csvparser->getline($csv_fh)};
     my $fieldstring = "(" . (join ",", @fieldslist) . ")";
     
     my $loaddataquery = qq[LOAD DATA LOCAL INFILE '$path_to_data/$database/$table.txt' REPLACE INTO TABLE $table COLUMNS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' LINES TERMINATED BY '\\r\\n' IGNORE 1 LINES ];
