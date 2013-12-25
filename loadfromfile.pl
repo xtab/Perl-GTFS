@@ -1,7 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
 use Text::CSV;
-use Tie::Handle::CSV;
 use Getopt::Long;
 use DBI;
 
